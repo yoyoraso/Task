@@ -1,0 +1,38 @@
+---
+- hosts: server
+  tasks:
+    - name: Setting up the Security Group for RDS
+      ec2_group:
+          name: RDS_Security_Group_AWS
+          description: Allowing Traffic on port 5432
+          region: eu-west-2
+          rules:
+           - proto: tcp
+             from_port: 5432
+             to_port: 5432
+             cidr_ip: 0.0.0.0/0
+
+           - proto: icmp
+             from_port: -1
+             to_port: -1
+             cidr_ip: 0.0.0.0/0
+          rules_egress:
+           - proto: all
+             cidr_ip: 0.0.0.0/0
+          vpc_id: vpc-0fe6b4ef5ccaa93d1
+    - name: Create single-zone Postgres on RDS in a VPC
+      local_action:
+        module: rds
+        command: create
+        instance_name: jumia
+        region: eu-west-2
+        size: '10'
+        instance_type: db.t2.micro
+        db_engine:  postgres
+        engine_version: '11.13'
+        multi_zone: no
+        publicly_accessible: yes
+        port: 5432
+        db_name: jumia_phone_validator
+        username: jumia
+        password: 3fdpMb4Wh6G9mhbk
